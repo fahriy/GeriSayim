@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Tactical Countdown HUD</title>
+<title>Tactical Countdown</title>
 
 <style>
 :root{
@@ -13,19 +13,22 @@
   --warn:#ff3b3b;
 }
 
-*{box-sizing:border-box;font-family:system-ui,Segoe UI,Arial}
+*{
+  box-sizing:border-box;
+  font-family:system-ui,Arial;
+}
 
 body{
   margin:0;
   background:radial-gradient(circle at center,#0a0f0c,#050607);
   color:var(--green);
-  overflow-x:hidden;
 }
 
-/* GRID + SCAN */
+/* GRID BACKGROUND */
 body::before{
   content:"";
-  position:fixed;inset:0;
+  position:fixed;
+  inset:0;
   background-image:
     linear-gradient(to right, rgba(57,255,136,.05) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(57,255,136,.05) 1px, transparent 1px);
@@ -33,9 +36,11 @@ body::before{
   pointer-events:none;
 }
 
+/* SCAN EFFECT */
 body::after{
   content:"";
-  position:fixed;inset:0;
+  position:fixed;
+  inset:0;
   background:linear-gradient(to bottom,transparent,rgba(57,255,136,.06),transparent);
   animation:scan 4s linear infinite;
   pointer-events:none;
@@ -47,54 +52,66 @@ body::after{
 }
 
 .container{
-  max-width:1100px;
-  margin:40px auto;
+  max-width:1200px;
+  margin:60px auto;
   padding:20px;
 }
 
+/* HUD PANEL */
 .hud{
   border:1px solid rgba(57,255,136,.3);
-  padding:20px;
-  border-radius:12px;
   background:rgba(0,0,0,.4);
+  padding:25px;
+  border-radius:12px;
   box-shadow:0 0 25px rgba(57,255,136,.1);
 }
 
-/* TOP GRID */
-.top{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
+/* MAIN ROW */
+.row{
+  display:flex;
+  justify-content:space-between;
   gap:10px;
-  margin-bottom:15px;
+  flex-wrap:wrap;
 }
 
-.mid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  margin-bottom:20px;
-}
-
+/* BOXES */
 .box{
-  border:1px solid rgba(57,255,136,.25);
-  padding:12px;
+  flex:1;
+  min-width:110px;
   text-align:center;
-  background:rgba(0,0,0,.3);
+  padding:12px 8px;
+  border:1px solid rgba(57,255,136,.25);
+  background:rgba(0,0,0,.25);
+  border-radius:8px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
 }
 
-.label{font-size:11px;opacity:.7}
-.value{font-size:18px;font-weight:600;margin-top:5px}
+/* VALUE */
+.value{
+  font-size:28px;
+  font-weight:700;
+  letter-spacing:1px;
+}
 
-/* CENTER */
+/* LABEL */
+.label{
+  font-size:12px;
+  opacity:.7;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+/* CENTER DISPLAY */
 .center{
   text-align:center;
-  margin:20px 0;
+  margin:25px 0;
 }
 
-.big{
-  font-size:64px;
-  letter-spacing:2px;
-  font-weight:700;
+.sec{
+  font-size:70px;
+  font-weight:800;
   text-shadow:0 0 15px rgba(57,255,136,.4);
 }
 
@@ -103,18 +120,12 @@ body::after{
   opacity:.8;
 }
 
-.target{
-  margin-top:10px;
-  font-size:12px;
-  opacity:.7;
-}
-
 /* CONTROLS */
 .controls{
   display:flex;
   flex-wrap:wrap;
-  gap:10px;
   justify-content:center;
+  gap:10px;
   margin-top:20px;
 }
 
@@ -131,7 +142,6 @@ button{
   border:1px solid var(--green);
   color:var(--green);
   cursor:pointer;
-  transition:.2s;
 }
 
 button:hover{
@@ -143,20 +153,9 @@ button:hover{
   color:var(--warn);
 }
 
-/* MISSION COMPLETE */
+/* COMPLETE */
 .complete{
   color:var(--warn);
-  animation:pulse 1s infinite;
-}
-
-@keyframes pulse{
-  0%,100%{opacity:1}
-  50%{opacity:.3}
-}
-
-/* RESPONSIVE */
-@media(max-width:700px){
-  .big{font-size:42px}
 }
 </style>
 </head>
@@ -166,23 +165,24 @@ button:hover{
 <div class="container">
   <div class="hud">
 
-    <div class="top">
-      <div class="box"><div class="label">YIL</div><div class="value" id="yil">-</div></div>
-      <div class="box"><div class="label">AY</div><div class="value" id="ay">-</div></div>
+    <!-- TOP ROW -->
+    <div class="row">
+      <div class="box"><div class="value" id="yil">0</div><div class="label">YIL</div></div>
+      <div class="box"><div class="value" id="ay">0</div><div class="label">AY</div></div>
+      <div class="box"><div class="value" id="gun">0</div><div class="label">GÜN</div></div>
+      <div class="box"><div class="value" id="saat">0</div><div class="label">SAAT</div></div>
+      <div class="box"><div class="value" id="dk">0</div><div class="label">DK</div></div>
+      <div class="box"><div class="value" id="sn">00</div><div class="label">SN</div></div>
+      <div class="box"><div class="value" id="ms">000</div><div class="label">MS</div></div>
     </div>
 
-    <div class="mid">
-      <div class="box"><div class="label">GÜN</div><div class="value" id="gun">-</div></div>
-      <div class="box"><div class="label">SAAT</div><div class="value" id="saat">-</div></div>
-      <div class="box"><div class="label">DK</div><div class="value" id="dk">-</div></div>
-    </div>
-
+    <!-- CENTER -->
     <div class="center">
-      <div class="big" id="sn">00</div>
-      <div class="ms" id="ms">000</div>
-      <div class="target" id="targetText">HEDEF: -</div>
+      <div class="sec" id="big">MISSION</div>
+      <div class="ms" id="targetText">HEDEF: -</div>
     </div>
 
+    <!-- CONTROLS -->
     <div class="controls">
       <input type="datetime-local" id="dateInput"/>
       <button onclick="start()">START</button>
@@ -195,96 +195,83 @@ button:hover{
 </div>
 
 <script>
-let targetTime = null;
-let running = false;
-let paused = false;
-let remaining = null;
+let targetTime=null;
+let running=false;
+let remaining=null;
 
-const els = {
-  yil: document.getElementById("yil"),
-  ay: document.getElementById("ay"),
-  gun: document.getElementById("gun"),
-  saat: document.getElementById("saat"),
-  dk: document.getElementById("dk"),
-  sn: document.getElementById("sn"),
-  ms: document.getElementById("ms"),
-  target: document.getElementById("targetText")
+const el={
+  yil:document.getElementById("yil"),
+  ay:document.getElementById("ay"),
+  gun:document.getElementById("gun"),
+  saat:document.getElementById("saat"),
+  dk:document.getElementById("dk"),
+  sn:document.getElementById("sn"),
+  ms:document.getElementById("ms"),
+  big:document.getElementById("big"),
+  target:document.getElementById("targetText")
 };
 
 function save(){
-  localStorage.setItem("targetTime", targetTime);
-  localStorage.setItem("running", running);
-  localStorage.setItem("remaining", remaining);
+  localStorage.setItem("t",targetTime);
+  localStorage.setItem("r",running);
+  localStorage.setItem("rem",remaining);
 }
 
 function load(){
-  const t = localStorage.getItem("targetTime");
-  const r = localStorage.getItem("running");
-  const rem = localStorage.getItem("remaining");
-
-  if(t){
-    targetTime = parseInt(t);
-    running = r === "true";
-    remaining = rem ? parseInt(rem) : null;
-  }
+  targetTime=+localStorage.getItem("t");
+  running=localStorage.getItem("r")==="true";
+  remaining=+localStorage.getItem("rem");
 }
 
 function format(diff){
-  if(diff <= 0){
-    return null;
-  }
+  if(diff<=0) return null;
 
-  const ms = diff % 1000;
-  const totalSec = Math.floor(diff / 1000);
+  const ms=diff%1000;
+  const s=Math.floor(diff/1000);
 
-  const sec = totalSec % 60;
-  const min = Math.floor(totalSec / 60) % 60;
-  const hour = Math.floor(totalSec / 3600) % 24;
-  const day = Math.floor(totalSec / 86400);
-  const month = Math.floor(day / 30);
-  const year = Math.floor(month / 12);
+  const sec=s%60;
+  const min=Math.floor(s/60)%60;
+  const hour=Math.floor(s/3600)%24;
+  const day=Math.floor(s/86400);
+  const month=Math.floor(day/30);
+  const year=Math.floor(month/12);
 
   return {year,month:month%12,day:day%30,hour,min,sec,ms};
 }
 
 function tick(){
-  if(!running || !targetTime) return;
+  if(!running||!targetTime) return;
 
-  const now = Date.now();
-  const diff = targetTime - now;
-
-  const f = format(diff);
+  const diff=targetTime-Date.now();
+  const f=format(diff);
 
   if(!f){
-    els.sn.textContent = "00";
-    els.ms.textContent = "000";
+    el.big.textContent="MISSION COMPLETE";
     document.body.classList.add("complete");
-    els.target.textContent = "MISSION COMPLETE";
-    running = false;
+    running=false;
     save();
     return;
   }
 
-  els.yil.textContent = f.year;
-  els.ay.textContent = f.month;
-  els.gun.textContent = f.day;
-  els.saat.textContent = f.hour;
-  els.dk.textContent = f.min;
-  els.sn.textContent = String(f.sec).padStart(2,"0");
-  els.ms.textContent = String(f.ms).padStart(3,"0");
+  el.yil.textContent=f.year;
+  el.ay.textContent=f.month;
+  el.gun.textContent=f.day;
+  el.saat.textContent=f.hour;
+  el.dk.textContent=f.min;
+  el.sn.textContent=String(f.sec).padStart(2,"0");
+  el.ms.textContent=String(f.ms).padStart(3,"0");
 
   requestAnimationFrame(tick);
 }
 
 function start(){
-  const val = document.getElementById("dateInput").value;
-  if(!val) return;
+  const v=document.getElementById("dateInput").value;
+  if(!v) return;
 
-  targetTime = new Date(val).getTime();
-  running = true;
-  document.body.classList.remove("complete");
+  targetTime=new Date(v).getTime();
+  running=true;
 
-  els.target.textContent = "HEDEF: " + new Date(targetTime).toLocaleString();
+  el.target.textContent="HEDEF: "+new Date(targetTime).toLocaleString();
 
   save();
   tick();
@@ -292,42 +279,30 @@ function start(){
 
 function stop(){
   if(!running) return;
-  running = false;
-
-  remaining = targetTime - Date.now();
+  running=false;
+  remaining=targetTime-Date.now();
   save();
 }
 
 function resume(){
   if(!remaining) return;
-  targetTime = Date.now() + remaining;
-  running = true;
-
+  targetTime=Date.now()+remaining;
+  running=true;
   save();
   tick();
 }
 
 function reset(){
-  running = false;
-  targetTime = null;
-  remaining = null;
-
+  running=false;
+  targetTime=null;
+  remaining=null;
   localStorage.clear();
 
-  els.yil.textContent = "-";
-  els.ay.textContent = "-";
-  els.gun.textContent = "-";
-  els.saat.textContent = "-";
-  els.dk.textContent = "-";
-  els.sn.textContent = "00";
-  els.ms.textContent = "000";
-  els.target.textContent = "HEDEF: -";
-
-  document.body.classList.remove("complete");
+  location.reload();
 }
 
 load();
-if(running && targetTime) tick();
+if(running&&targetTime) tick();
 </script>
 
 </body>

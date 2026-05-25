@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tactical Countdown Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0e0d;
+            --bg-secondary: #0d1210;
+            --accent: #00ff88;
+            --accent-dim: rgba(0, 255, 136, 0.3);
+            --accent-glow: rgba(0, 255, 136, 0.1);
+            --danger: #ff4444;
+            --danger-dim: rgba(255, 68, 68, 0.3);
+            --warning: #ffaa00;
+            --text-primary: #e0e0e0;
+            --text-secondary: #888;
+            --border: rgba(0, 255, 136, 0.15);
+            --glass: rgba(0, 0, 0, 0.6);
+            --card-bg: rgba(10, 15, 13, 0.8);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(0, 255, 136, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(0, 255, 136, 0.02) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 0%, rgba(0, 255, 136, 0.03) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Grid Pattern */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        /* Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: float 6s infinite;
+            opacity: 0;
+            filter: blur(1px);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100px) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        /* Main Container */
+        .main-wrapper {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .main-container {
+            width: 95%;
+            max-width: 1000px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                0 0 50px var(--accent-glow),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .mission-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.inactive {
+            background: var(--text-secondary);
+            box-shadow: none;
+            animation: none;
+        }
+        
+        .status-dot.complete {
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .status-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+        
+        /* Timer Display */
+        .timer-section {
+            margin: 30px 0;
+        }
+        
+        .main-timer {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .time-unit {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px 8px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .time-unit:hover {
+            border-color: var(--accent-dim);
+            box-shadow: 0 0 25px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+        
+        .time-unit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.05), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .time-unit:hover::before {
+            left: 100%;
+        }
+        
+        .time-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent-dim);
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+        
+        .time-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+        
+        /* Center Display */
+        .center-display {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+        
+        .big-seconds {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 100px;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--accent);
+            text-shadow: 
+                0 0 30px var(--accent-glow),
+                0 0 60px var(--accent-glow),
+                0 0 90px var(--accent-dim);
+            margin: 15px 0;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .big-seconds.complete {
+            color: var(--danger);
+            text-shadow: 
+                0 0 30px var(--danger-dim),
+                0 0 60px var(--danger-dim),
+                0 0 90px rgba(255, 68, 68, 0.2);
+        }
+        
+        @keyframes glow {
+            0% { text-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow); }
+            100% { text-shadow: 0 0 40px var(--accent-dim), 0 0 80px var(--accent-dim); }
+        }
+        
+        .target-info {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            margin-top: 8px;
+        }
+        
+        .target-info span {
+            color: var(--accent);
+        }
+        
+        /* Progress Bar */
+        .progress-section {
+            margin: 25px 0;
+        }
+        
+        .progress-bar {
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--accent-dim);
+        }
+        
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: stretch;
+            flex-wrap: wrap;
+            margin: 25px 0;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            height: 48px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1;
+            min-width: fit-content;
+        }
+        
+        .date-input-wrapper {
+            position: relative;
+            display: inline-flex;
+        }
+        
+        .date-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .btn-accent {
+            border-color: var(--accent);
+            color: var(--accent);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .btn-accent:hover {
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 25px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 255, 136, 0.05);
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary {
+            background: rgba(0, 255, 136, 0.15);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 700;
+        }
+        
+        .btn-primary:hover {
+            background: rgba(0, 255, 136, 0.25);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+        
+        .btn-warning {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+        
+        .btn-warning:hover {
+            background: rgba(255, 170, 0, 0.15);
+            box-shadow: 0 0 25px rgba(255, 170, 0, 0.3);
+            color: var(--warning);
+        }
+        
+        .btn-danger {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background: rgba(255, 68, 68, 0.15);
+            box-shadow: 0 0 25px rgba(255, 68, 68, 0.3);
+            color: var(--danger);
+        }
+        
+        /* Presets */
+        .presets {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .preset-btn {
+            padding: 8px 15px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .preset-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 255, 136, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .mission-id {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: var(--text-secondary);
+        }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
+            backdrop-filter: blur(10px);
+            pointer-events: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px;
+                border-radius: 15px;
+                margin: 10px 0;
+            }
+            
+            .main-timer {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            
+            .time-value {
+                font-size: 24px;
+            }
+            
+            .time-label {
+                font-size: 9px;
+            }
+            
+            .big-seconds {
+                font-size: 70px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .presets {
+                gap: 6px;
+            }
+            
+            .preset-btn {
+                font-size: 10px;
+                padding: 6px 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 15px;
+            }
+            
+            .main-timer {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            
+            .time-value {
+                font-size: 20px;
+            }
+            
+            .big-seconds {
+                font-size: 50px;
+            }
+            
+            .mission-title {
+                font-size: 11px;
+                letter-spacing: 2px;
+            }
+            
+            .btn {
+                font-size: 12px;
+                letter-spacing: 1px;
+            }
+        }
+        
+        @media (max-width: 350px) {
+            .main-timer {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .time-value {
+                font-size: 18px;
+            }
+            
+            .big-seconds {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Grid Overlay -->
+    <div class="grid-overlay"></div>
+    
+    <!-- Particles Container -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header">
+                <div class="mission-title">◆ Operasyon Geri Sayım ◆</div>
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <div class="status-text" id="statusText">HAZIR</div>
+                </div>
+            </div>
+            
+            <!-- Timer Display -->
+            <div class="timer-section">
+                <div class="main-timer">
+                    <div class="time-unit">
+                        <div class="time-value" id="yil">0</div>
+                        <div class="time-label">Yıl</div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-value" id="ay">0</div>
+                        <div class="time-label">Ay</div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-value" id="gun">0</div>
+                        <div class="time-label">Gün</div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-value" id="saat">0</div>
+                        <div class="time-label">Saat</div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-value" id="dk">0</div>
+                        <div class="time-label">Dakika</div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-value" id="sn">00</div>
+                        <div class="time-label">Saniye</div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-value" id="ms">000</div>
+                        <div class="time-label">Milisaniye</div>
+                    </div>
+                </div>
+                
+                <!-- Center Display -->
+                <div class="center-display">
+                    <div class="big-seconds" id="bigSeconds">00</div>
+                    <div class="target-info">
+                        HEDEF: <span id="targetText">-</span>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="progress-section">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span id="progressStart">BAŞLANGIÇ</span>
+                        <span id="progressPercent">%0</span>
+                        <span>HEDEF</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="controls">
+                <div class="date-input-wrapper">
+                    <input type="datetime-local" id="dateInput" class="date-input">
+                    <button class="btn btn-accent">
+                        📅 Hedef Tarih
+                    </button>
+                </div>
+                <button class="btn btn-primary" onclick="startCountdown()">
+                    ▶ Başlat
+                </button>
+                <button class="btn" onclick="stopCountdown()">
+                    ⏸ Durdur
+                </button>
+                <button class="btn" onclick="resumeCountdown()">
+                    ⏵ Devam
+                </button>
+                <button class="btn btn-warning" onclick="addTime(1)">
+                    +1 Dakika
+                </button>
+                <button class="btn btn-danger" onclick="resetCountdown()">
+                    ⏹ Sıfırla
+                </button>
+            </div>
+            
+            <!-- Quick Presets -->
+            <div class="presets">
+                <button class="preset-btn" onclick="setPreset(1)">1 Dakika</button>
+                <button class="preset-btn" onclick="setPreset(5)">5 Dakika</button>
+                <button class="preset-btn" onclick="setPreset(15)">15 Dakika</button>
+                <button class="preset-btn" onclick="setPreset(30)">30 Dakika</button>
+                <button class="preset-btn" onclick="setPreset(60)">1 Saat</button>
+                <button class="preset-btn" onclick="setPreset(1440)">24 Saat</button>
+                <button class="preset-btn" onclick="setPreset(10080)">7 Gün</button>
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer">
+                <div class="mission-id">MİSYON ID: #<span id="missionId">----</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // State Management
+        let targetTime = null;
+        let isRunning = false;
+        let remainingTime = null;
+        let animationFrameId = null;
+        let initialDuration = null;
+        
+        // DOM Elements
+        const elements = {
+            yil: document.getElementById('yil'),
+            ay: document.getElementById('ay'),
+            gun: document.getElementById('gun'),
+            saat: document.getElementById('saat'),
+            dk: document.getElementById('dk'),
+            sn: document.getElementById('sn'),
+            ms: document.getElementById('ms'),
+            bigSeconds: document.getElementById('bigSeconds'),
+            targetText: document.getElementById('targetText'),
+            statusDot: document.getElementById('statusDot'),
+            statusText: document.getElementById('statusText'),
+            progressFill: document.getElementById('progressFill'),
+            progressPercent: document.getElementById('progressPercent'),
+            progressStart: document.getElementById('progressStart'),
+            missionId: document.getElementById('missionId'),
+            dateInput: document.getElementById('dateInput')
+        };
+        
+        // Date input change handler
+        elements.dateInput.addEventListener('change', function() {
+            if (this.value) {
+                targetTime = new Date(this.value).getTime();
+                remainingTime = targetTime - Date.now();
+                
+                if (remainingTime > 0) {
+                    updateDisplay(remainingTime);
+                    elements.targetText.textContent = new Date(targetTime).toLocaleString('tr-TR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    saveState();
+                    showToast('📅 Hedef tarih ayarlandı: ' + new Date(targetTime).toLocaleString('tr-TR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }));
+                } else {
+                    showToast('⚠️ Geçmiş bir tarih seçemezsiniz!');
+                    this.value = '';
+                }
+            }
+        });
+        
+        // Initialize
+        function init() {
+            createParticles();
+            generateMissionId();
+            loadState();
+            
+            // Set minimum date to now
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            elements.dateInput.min = now.toISOString().slice(0, 16);
+            
+            // Auto-resume if was running
+            if (isRunning && targetTime) {
+                startCountdown();
+            } else if (remainingTime) {
+                updateDisplay(remainingTime);
+            }
+        }
+        
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.width = Math.random() * 3 + 1 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDuration = Math.random() * 10 + 5 + 's';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                container.appendChild(particle);
+            }
+        }
+        
+        // Generate random mission ID
+        function generateMissionId() {
+            const id = Math.random().toString(36).substring(2, 10).toUpperCase();
+            elements.missionId.textContent = id;
+        }
+        
+        // Format time difference
+        function formatTime(diff) {
+            if (diff <= 0) return null;
+            
+            const ms = diff % 1000;
+            const totalSeconds = Math.floor(diff / 1000);
+            
+            const seconds = totalSeconds % 60;
+            const totalMinutes = Math.floor(totalSeconds / 60);
+            const minutes = totalMinutes % 60;
+            const totalHours = Math.floor(totalMinutes / 60);
+            const hours = totalHours % 24;
+            const totalDays = Math.floor(totalHours / 24);
+            const days = totalDays % 30;
+            const totalMonths = Math.floor(totalDays / 30);
+            const months = totalMonths % 12;
+            const years = Math.floor(totalMonths / 12);
+            
+            return {
+                years,
+                months,
+                days,
+                hours,
+                minutes,
+                seconds,
+                milliseconds: ms,
+                totalSeconds,
+                total: diff
+            };
+        }
+        
+        // Update display
+        function updateDisplay(diff) {
+            const time = formatTime(diff);
+            
+            if (!time) {
+                handleCompletion();
+                return;
+            }
+            
+            elements.yil.textContent = time.years;
+            elements.ay.textContent = time.months;
+            elements.gun.textContent = time.days;
+            elements.saat.textContent = time.hours;
+            elements.dk.textContent = time.minutes;
+            elements.sn.textContent = String(time.seconds).padStart(2, '0');
+            elements.ms.textContent = String(time.milliseconds).padStart(3, '0');
+            elements.bigSeconds.textContent = String(time.seconds).padStart(2, '0');
+            
+            // Update progress bar
+            if (initialDuration) {
+                const progress = ((initialDuration - diff) / initialDuration) * 100;
+                elements.progressFill.style.width = Math.min(progress, 100) + '%';
+                elements.progressPercent.textContent = '%' + Math.floor(Math.min(progress, 100));
+            }
+        }
+        
+        // Handle completion
+        function handleCompletion() {
+            isRunning = false;
+            cancelAnimationFrame(animationFrameId);
+            
+            elements.bigSeconds.textContent = '00';
+            elements.bigSeconds.classList.add('complete');
+            elements.statusDot.classList.add('complete');
+            elements.statusText.textContent = 'TAMAMLANDI';
+            elements.progressFill.style.width = '100%';
+            elements.progressPercent.textContent = '%100';
+            
+            showToast('🎯 MİSYON TAMAMLANDI!');
+            playCompletionEffect();
+            saveState();
+        }
+        
+        // Animation loop
+        function tick() {
+            if (!isRunning || !targetTime) return;
+            
+            const now = Date.now();
+            const diff = targetTime - now;
+            
+            if (diff <= 0) {
+                handleCompletion();
+                return;
+            }
+            
+            updateDisplay(diff);
+            animationFrameId = requestAnimationFrame(tick);
+        }
+        
+        // Start countdown
+        function startCountdown() {
+            if (!targetTime) {
+                showToast('⚠️ Lütfen önce hedef tarih seçin!');
+                return;
+            }
+            
+            const now = Date.now();
+            if (targetTime <= now) {
+                showToast('⚠️ Geçmiş bir tarih seçemezsiniz!');
+                return;
+            }
+            
+            isRunning = true;
+            initialDuration = targetTime - now;
+            
+            elements.bigSeconds.classList.remove('complete');
+            elements.statusDot.classList.remove('complete');
+            elements.statusDot.classList.add('active');
+            elements.statusText.textContent = 'AKTİF';
+            elements.targetText.textContent = new Date(targetTime).toLocaleString('tr-TR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            elements.progressStart.textContent = new Date().toLocaleTimeString('tr-TR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            saveState();
+            tick();
+            showToast('▶ Geri sayım başladı!');
+        }
+        
+        // Stop countdown
+        function stopCountdown() {
+            if (!isRunning) return;
+            
+            isRunning = false;
+            cancelAnimationFrame(animationFrameId);
+            remainingTime = targetTime - Date.now();
+            
+            elements.statusDot.classList.remove('active');
+            elements.statusText.textContent = 'DURAKLATILDI';
+            
+            saveState();
+            showToast('⏸ Geri sayım duraklatıldı');
+        }
+        
+        // Resume countdown
+        function resumeCountdown() {
+            if (isRunning || !remainingTime) return;
+            
+            targetTime = Date.now() + remainingTime;
+            isRunning = true;
+            
+            elements.statusDot.classList.add('active');
+            elements.statusText.textContent = 'AKTİF';
+            elements.targetText.textContent = new Date(targetTime).toLocaleString('tr-TR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            saveState();
+            tick();
+            showToast('⏵ Geri sayım devam ediyor');
+        }
+        
+        // Add time (dakika cinsinden)
+        function addTime(minutes) {
+            if (!targetTime && !remainingTime) {
+                showToast('⚠️ Önce bir hedef belirleyin!');
+                return;
+            }
+            
+            const currentTarget = targetTime || (Date.now() + remainingTime);
+            targetTime = currentTarget + (minutes * 60 * 1000);
+            
+            if (isRunning) {
+                initialDuration = targetTime - Date.now();
+            }
+            
+            remainingTime = targetTime - Date.now();
+            updateDisplay(remainingTime);
+            elements.targetText.textContent = new Date(targetTime).toLocaleString('tr-TR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            // Update date input
+            elements.dateInput.value = new Date(targetTime).toISOString().slice(0, 16);
+            
+            saveState();
+            showToast(`➕ ${minutes} dakika eklendi`);
+        }
+        
+        // Reset countdown
+        function resetCountdown() {
+            isRunning = false;
+            targetTime = null;
+            remainingTime = null;
+            initialDuration = null;
+            
+            cancelAnimationFrame(animationFrameId);
+            
+            elements.yil.textContent = '0';
+            elements.ay.textContent = '0';
+            elements.gun.textContent = '0';
+            elements.saat.textContent = '0';
+            elements.dk.textContent = '0';
+            elements.sn.textContent = '00';
+            elements.ms.textContent = '000';
+            elements.bigSeconds.textContent = '00';
+            elements.bigSeconds.classList.remove('complete');
+            elements.targetText.textContent = '-';
+            elements.statusDot.classList.remove('active', 'complete');
+            elements.statusText.textContent = 'HAZIR';
+            elements.progressFill.style.width = '0%';
+            elements.progressPercent.textContent = '%0';
+            elements.progressStart.textContent = 'BAŞLANGIÇ';
+            elements.dateInput.value = '';
+            
+            localStorage.clear();
+            generateMissionId();
+            showToast('🔄 Sıfırlandı');
+        }
+        
+        // Set preset
+        function setPreset(minutes) {
+            const targetDate = new Date(Date.now() + minutes * 60 * 1000);
+            
+            // Format for datetime-local input
+            const year = targetDate.getFullYear();
+            const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+            const day = String(targetDate.getDate()).padStart(2, '0');
+            const hours = String(targetDate.getHours()).padStart(2, '0');
+            const mins = String(targetDate.getMinutes()).padStart(2, '0');
+            
+            elements.dateInput.value = `${year}-${month}-${day}T${hours}:${mins}`;
+            targetTime = targetDate.getTime();
+            remainingTime = minutes * 60 * 1000;
+            
+            updateDisplay(remainingTime);
+            elements.targetText.textContent = targetDate.toLocaleString('tr-TR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            saveState();
+            showToast(`⏱️ ${minutes} dakikalık geri sayım hazır`);
+        }
+        
+        // Toast notification
+        function showToast(message) {
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) existingToast.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // Completion effect
+        function playCompletionEffect() {
+            // Flash effect
+            document.body.style.transition = 'background-color 0.5s ease';
+            document.body.style.backgroundColor = 'rgba(255, 68, 68, 0.1)';
+            setTimeout(() => {
+                document.body.style.backgroundColor = '';
+            }, 1000);
+            
+            // Vibrate if supported
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200]);
+            }
+        }
+        
+        // Save state to localStorage
+        function saveState() {
+            const state = {
+                targetTime: targetTime,
+                isRunning: isRunning,
+                remainingTime: remainingTime,
+                initialDuration: initialDuration
+            };
+            localStorage.setItem('countdownState', JSON.stringify(state));
+        }
+        
+        // Load state from localStorage
+        function loadState() {
+            const saved = localStorage.getItem('countdownState');
+            if (!saved) return;
+            
+            try {
+                const state = JSON.parse(saved);
+                targetTime = state.targetTime;
+                isRunning = state.isRunning;
+                remainingTime = state.remainingTime;
+                initialDuration = state.initialDuration;
+                
+                if (targetTime) {
+                    elements.dateInput.value = new Date(targetTime).toISOString().slice(0, 16);
+                    elements.targetText.textContent = new Date(targetTime).toLocaleString('tr-TR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    
+                    const now = Date.now();
+                    if (targetTime <= now) {
+                        handleCompletion();
+                    } else if (remainingTime) {
+                        updateDisplay(remainingTime);
+                    }
+                }
+            } catch (e) {
+                console.error('State yüklenirken hata:', e);
+            }
+        }
+        
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

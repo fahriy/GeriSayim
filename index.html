@@ -343,43 +343,14 @@
             display: flex;
             gap: 10px;
             justify-content: center;
+            align-items: stretch;
             flex-wrap: wrap;
             margin: 25px 0;
         }
         
-        .date-input-wrapper {
-            position: relative;
-            flex: 1;
-            min-width: 200px;
-            max-width: 300px;
-        }
-        
-        .date-input {
-            width: 100%;
-            padding: 10px 12px;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-        
-        .date-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-        
-        .date-input::-webkit-calendar-picker-indicator {
-            filter: invert(70%) sepia(100%) saturate(500%) hue-rotate(90deg);
-        }
-        
-        .btn {
+        .btn, .date-input {
             padding: 10px 20px;
+            height: 45px;
             border: 1px solid var(--accent);
             background: transparent;
             color: var(--accent);
@@ -394,6 +365,31 @@
             position: relative;
             overflow: hidden;
             white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1;
+        }
+        
+        .date-input {
+            min-width: 200px;
+            max-width: 250px;
+            border-color: var(--border);
+            color: var(--text-primary);
+            cursor: text;
+            padding: 10px 15px;
+        }
+        
+        .date-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+            outline: none;
+        }
+        
+        .date-input::-webkit-calendar-picker-indicator {
+            filter: invert(70%) sepia(100%) saturate(500%) hue-rotate(90deg);
+            cursor: pointer;
         }
         
         .btn::before {
@@ -549,14 +545,14 @@
                 gap: 8px;
             }
             
-            .date-input-wrapper {
+            .date-input {
                 max-width: 100%;
                 min-width: 100%;
+                width: 100%;
             }
             
             .btn {
                 width: 100%;
-                padding: 12px;
             }
             
             .presets {
@@ -592,7 +588,7 @@
                 letter-spacing: 2px;
             }
             
-            .btn {
+            .btn, .date-input {
                 font-size: 11px;
                 letter-spacing: 1px;
             }
@@ -688,9 +684,7 @@
             
             <!-- Controls -->
             <div class="controls">
-                <div class="date-input-wrapper">
-                    <input type="datetime-local" id="dateInput" class="date-input" placeholder="Tarih ve saat seçin...">
-                </div>
+                <input type="datetime-local" id="dateInput" class="date-input" placeholder="Tarih ve saat seçin...">
                 <button class="btn btn-primary" onclick="startCountdown()">
                     ▶ Başlat
                 </button>
